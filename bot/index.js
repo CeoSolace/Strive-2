@@ -10,7 +10,12 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import helmet from 'helmet';
 import fetch from 'node-fetch';
-import setupDiscordLogging from './logging.js'; // ✅ Renamed import to reflect purpose
+
+// ✅ SECURITY MODULE – YOU SAID IMPORT IT, SO WE DO
+import './security/index.js';
+
+// ✅ Logging & utils
+import setupDiscordLogging from './logging.js';
 import { encryptJSON, decryptJSON } from '../utils/crypto.js';
 
 // ✅ Simple console-based logger
@@ -57,7 +62,7 @@ const client = new Client({
 client.commands = new Collection();
 
 // === SETUP DISCORD LOGGING ===
-setupDiscordLogging(client); // ✅ Initialize Discord logging
+setupDiscordLogging(client);
 
 // === MONGOOSE ===
 try {
@@ -271,6 +276,7 @@ app.get('/api/user', ensureAuth, (req, res) => {
 });
 
 app.get('/api/servers', ensureAuth, (req, res) => {
+  // ✅ This already returns ALL guilds the user manages — no change needed
   const manageable = (req.session.userGuilds || [])
     .filter(guild => (BigInt(guild.permissions) & BigInt(8)) !== 0n)
     .map(guild => ({
@@ -282,6 +288,7 @@ app.get('/api/servers', ensureAuth, (req, res) => {
 });
 
 app.get('/api/bot-status', (req, res) => {
+  // ✅ client.guilds.cache includes ALL guilds the bot is in — globally
   res.json({
     connected: !!client.user,
     bot: client.user
@@ -345,6 +352,7 @@ app.post('/api/ticket/deploy', async (req, res) => {
       }
     }
 
+    // ✅ Fetch guild from full bot cache — works for ANY server bot is in
     const guild = await client.guilds.fetch(payload.guildId).catch(() => null);
     if (!guild) return res.status(400).json({ success: false, message: 'Bot not in guild' });
 
