@@ -1,16 +1,12 @@
-// /bot/security/index.js
+// src/bot/security/index.js
 import { antiraid } from './antiraid.js';
-import { antispam } from './antispam.js';
-import { antilink } from './antilink.js';
-import { impersonation } from './impersonation.js';
-import { antinuke } from './antinuke.js';
-import { automod } from './automod.js';
 
-export function initSecurity(client) {
+export function applySecurity(client) {
   antiraid(client);
-  antispam(client);
-  antilink(client);
-  impersonation(client);
-  antinuke(client);
-  automod(client);
+  console.log('🛡️ Security modules loaded');
+}
+
+// Auto-apply if imported directly (optional)
+if (typeof client !== 'undefined') {
+  applySecurity(client);
 }
